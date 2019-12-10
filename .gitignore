@@ -1,0 +1,4 @@
+tmp/
+**/*.swp
+packer_cache/
+output-virtualbox-iso/

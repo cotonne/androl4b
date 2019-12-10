@@ -1,0 +1,130 @@
+{
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'andro' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "scripts/setup.sh"
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'andro' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "scripts/install-guest-extension.sh"
+    }
+    ,
+    {
+      "type": "shell",
+      "execute_command": "echo 'andro' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "scripts/cleanup.sh"
+    }
+  ],
+  "builders": [
+    {
+      "type": "virtualbox-iso",
+      "boot_command": [
+        "<enter><wait><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+	"url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `preseed_path`}}<wait>",
+	" boot=casper<wait>",
+	" initrd=/casper/initrd<wait>",
+ 	" automatic-ubiquity<wait>",
+        " auto<wait>",
+	" ubiquity/reboot=true",
+	" grub-installer/bootdev=/dev/sda<wait>",
+	" noprompt",
+	" debug-ubiquity",
+        " -- <wait>",
+        "<enter><wait>"
+      ],
+      "boot_wait": "7s",
+      "disk_size": "{{user `disk_size`}}",
+      "guest_os_type": "Ubuntu_64",
+      "headless": "{{ user `headless` }}",
+      "http_directory": "preseed",
+      "iso_urls": [
+        "iso/{{user `iso_name`}}",
+        "{{user `mirror`}}/{{user `mirror_directory`}}/release/{{user `iso_name`}}"
+      ],
+      "iso_checksum_type": "sha256",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "ssh_username": "{{user `user`}}",
+      "ssh_password": "{{user `password`}}",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "10000s",
+      "shutdown_command": "echo 'andro'|sudo -S shutdown -P now",
+      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "virtualbox_version_file": ".vbox_version",
+      "vm_name": "{{ user `template` }}",
+      "vboxmanage": [
+                [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          "{{ user `memory` }}"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          "{{ user `cpus` }}"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--vram",
+          "128"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--ioapic",
+          "on"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--clipboard",
+          "bidirectional"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--hwvirtex",
+          "on"
+        ]
+      ],
+      "vboxmanage_post": [
+	["modifyhd", "{{pwd}}/output-{{build_name}}/{{.Name}}.vdi", "--compact"]
+      ]
+    }
+  ],
+  "description":  "Fork of Androl4b",
+  "post-processors": [[
+    ]],
+  "variables": {
+    "user":"andro",
+    "password":"andro",
+    "box_basename": "Androl4b",
+    "build_timestamp": "{{isotime \"2016-08-25\"}}",
+    "cpus": "2",
+    "disk_size": "20480",
+    "git_revision": "__unknown_git_revision__",
+    "headless": "false",
+    "http_proxy": "{{env `http_proxy`}}",
+    "https_proxy": "{{env `https_proxy`}}",
+    "iso_checksum": "b3ba05e8afa0668ca64c18691a12017ef4e981abb301978e8d1121073a0951d3",
+    "iso_checksum_type": "sha256",
+    "iso_name": "lubuntu-18.04.3-desktop-amd64.iso",
+    "memory": "4096",
+    "metadata": "floppy/dummy_metadata.json",
+    "mirror": "http://cdimages.ubuntu.com/lubuntu/releases/",
+    "mirror_directory": "18.04.3",
+    "name": "cotonne/Lubuntu1804",
+    "no_proxy": "{{env `no_proxy`}}",
+    "preseed_path": "preseed.cfg",
+    "template": "andro",
+    "version": "1.0.TIMESTAMP"
+  }
+}
